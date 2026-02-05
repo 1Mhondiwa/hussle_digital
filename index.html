@@ -262,8 +262,8 @@
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav ms-auto py-0">
                     <a href="index.html" class="nav-item nav-link active">Home</a>
-                    <a href="#who-we-are" class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">Who We Are</a>
-                    <a href="#what-we-do" class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">What We Do</a>
+                    <a href="#who-we-are" class="nav-item nav-link">Who We Are</a>
+                    <a href="#what-we-do" class="nav-item nav-link">What We Do</a>
                     <a href="projects.html" class="nav-item nav-link">Our Work</a>
                     
                 </div>
@@ -893,6 +893,36 @@
             
             $('#navbarCollapse').on('hide.bs.collapse', function() {
                 $('.navbar-toggler').attr('aria-expanded', 'false');
+            });
+        });
+    </script>
+    
+    <!-- Mobile Menu Auto-Close Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if navbar is collapsed (mobile view)
+            function isMobileMenuOpen() {
+                const navbarCollapse = document.getElementById('navbarCollapse');
+                return navbarCollapse.classList.contains('show');
+            }
+            
+            // Close mobile menu when clicking anchor links
+            function closeMobileMenu() {
+                if (isMobileMenuOpen()) {
+                    const navbarCollapse = new bootstrap.Collapse(document.getElementById('navbarCollapse'), {
+                        toggle: false
+                    });
+                    navbarCollapse.hide();
+                }
+            }
+            
+            // Add click event to anchor links
+            const anchorLinks = document.querySelectorAll('a[href^="#"]');
+            anchorLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Small delay to allow navigation first
+                    setTimeout(closeMobileMenu, 100);
+                });
             });
         });
     </script>
