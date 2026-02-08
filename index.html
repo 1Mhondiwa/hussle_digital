@@ -1193,48 +1193,73 @@
     
     <!-- Active Nav Link on Scroll -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var sections = document.querySelectorAll('#who-we-are, #what-we-do, #our-work, #contact');
-            var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            var navbarHeight = 90;
+        (function() {
+            // Wait for DOM ready
+            document.addEventListener('DOMContentLoaded', function() {
+                var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+                var navbarHeight = 90;
 
-            function setActiveLink(targetHref) {
-                navLinks.forEach(function(link) { link.classList.remove('active'); });
-                var target = document.querySelector('.navbar-nav .nav-link[href="' + targetHref + '"]');
-                if (target) target.classList.add('active');
-            }
+                // Map each nav link to the section it represents
+                // navLinks[0] = Home (href="index.html")
+                // navLinks[1] = Who We Are (href="#who-we-are")
+                // navLinks[2] = What We Do (href="#what-we-do")
+                // navLinks[3] = Our Work (href="projects.html")
 
-            function updateActiveLink() {
-                var scrollY = window.scrollY || window.pageYOffset;
-                var heroThreshold = window.innerHeight - navbarHeight;
-                
-                // If user hasn't scrolled past the hero section, Home is active
-                if (scrollY < heroThreshold) {
-                    setActiveLink('index.html');
-                    return;
-                }
-
-                var currentSection = '';
-                sections.forEach(function(section) {
-                    var rect = section.getBoundingClientRect();
-                    if (rect.top <= navbarHeight + 50 && rect.bottom > navbarHeight + 50) {
-                        currentSection = section.getAttribute('id');
+                function clearActive() {
+                    for (var i = 0; i < navLinks.length; i++) {
+                        navLinks[i].classList.remove('active');
                     }
-                });
-
-                if (currentSection === 'our-work') {
-                    setActiveLink('projects.html');
-                } else if (currentSection) {
-                    setActiveLink('#' + currentSection);
-                } else {
-                    setActiveLink('index.html');
                 }
-            }
 
-            window.addEventListener('scroll', updateActiveLink);
-            // Delay initial call slightly to ensure parallax margin-top is applied
-            setTimeout(updateActiveLink, 50);
-        });
+                function activateByIndex(index) {
+                    clearActive();
+                    if (navLinks[index]) {
+                        navLinks[index].classList.add('active');
+                    }
+                }
+
+                function updateActiveLink() {
+                    var scrollY = window.scrollY || window.pageYOffset;
+                    var heroEnd = window.innerHeight - navbarHeight;
+
+                    // Still in hero area — activate Home
+                    if (scrollY < heroEnd) {
+                        activateByIndex(0);
+                        return;
+                    }
+
+                    // Check which section is currently in view
+                    var sectionIds = ['who-we-are', 'what-we-do', 'our-work', 'contact'];
+                    var navIndexMap = { 'who-we-are': 1, 'what-we-do': 2, 'our-work': 3, 'contact': -1 };
+                    var currentSection = '';
+
+                    for (var i = 0; i < sectionIds.length; i++) {
+                        var section = document.getElementById(sectionIds[i]);
+                        if (section) {
+                            var rect = section.getBoundingClientRect();
+                            if (rect.top <= navbarHeight + 50 && rect.bottom > navbarHeight + 50) {
+                                currentSection = sectionIds[i];
+                            }
+                        }
+                    }
+
+                    if (currentSection && navIndexMap[currentSection] >= 0) {
+                        activateByIndex(navIndexMap[currentSection]);
+                    } else if (currentSection === 'contact') {
+                        // In contact section — no specific nav link, keep none or Home
+                        clearActive();
+                    } else {
+                        // Between sections or at very top — Home
+                        activateByIndex(0);
+                    }
+                }
+
+                window.addEventListener('scroll', updateActiveLink);
+                // Run on load and after a short delay to handle any layout shifts
+                updateActiveLink();
+                setTimeout(updateActiveLink, 150);
+            });
+        })();
     </script>
     
     <!-- EmailJS SDK -->
