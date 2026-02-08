@@ -13,9 +13,10 @@
     
     
     // Modern scroll animations (replaces WOW.js)
+    const isMobile = window.innerWidth <= 768;
     const observerOptions = {
         threshold: 0.01,
-        rootMargin: '0px'
+        rootMargin: isMobile ? '0px 0px 50px 0px' : '0px'
     };
 
     const observer = new IntersectionObserver(function(entries) {
