@@ -1134,6 +1134,19 @@
                 $('#page-content').css('margin-top', '100vh');
             });
             
+            // Re-scroll to hash target after parallax margin is applied
+            // (fixes incorrect scroll position when navigating from another page with #hash)
+            if (window.location.hash) {
+                setTimeout(function() {
+                    var target = document.querySelector(window.location.hash);
+                    if (target) {
+                        var navbarHeight = 90;
+                        var targetTop = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+            
             // Hamburger menu toggle animation - initialize aria-expanded
             $('.navbar-toggler').attr('aria-expanded', 'false');
             
@@ -1187,9 +1200,22 @@
 
             function updateActiveLink() {
                 let currentSection = '';
+                
+                // Check if user is still in the hero area (above #page-content)
+                var pageContent = document.getElementById('page-content');
+                var pageContentTop = pageContent ? pageContent.getBoundingClientRect().top : 0;
+                
+                // If the page-content hasn't scrolled into view yet, we're in the hero
+                if (pageContentTop > navbarHeight + 100) {
+                    // Still in hero area - set Home as active
+                    navLinks.forEach(function(link) { link.classList.remove('active'); });
+                    var homeLink = document.querySelector('.navbar-nav .nav-link[href="index.html"]');
+                    if (homeLink) homeLink.classList.add('active');
+                    return;
+                }
 
                 sections.forEach(function(section) {
-                    const rect = section.getBoundingClientRect();
+                    var rect = section.getBoundingClientRect();
                     // Section is active when its top is at or above the navbar
                     // and its bottom is still below the navbar
                     if (rect.top <= navbarHeight + 50 && rect.bottom > navbarHeight + 50) {
@@ -1199,7 +1225,7 @@
 
                 navLinks.forEach(function(link) {
                     link.classList.remove('active');
-                    const href = link.getAttribute('href');
+                    var href = link.getAttribute('href');
                     if (href === '#' + currentSection) {
                         link.classList.add('active');
                     }
@@ -1209,7 +1235,7 @@
                     }
                 });
 
-                // If no section is active (at the very top), set Home as active
+                // If no section is active (transitioning between hero and first section), set Home as active
                 if (!currentSection) {
                     navLinks.forEach(function(link) { link.classList.remove('active'); });
                     var homeLink = document.querySelector('.navbar-nav .nav-link[href="index.html"]');
